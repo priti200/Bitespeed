@@ -30,7 +30,7 @@ When a new request comes in, there are five possible situations:
 1. **Nobody matches** → This is a brand new customer. Create a primary contact.
 2. **Someone matches, no new info** → We already know everything. Just return the cluster.
 3. **Someone matches, new info** → Same person, new detail. Create a secondary contact.
-4. **Two separate clusters get bridged** → A request contains info from two different primaries. They're the same person. Merge them — older primary wins, newer becomes secondary.
+4. **Two separate clusters get bridged** → A request contains info from two different primaries. They're the same person. Merge them - older primary wins, newer becomes secondary.
 5. **Always** → Return the full consolidated view of the cluster.
 
 The key insight is the **OR query**. When we search the database, we look for contacts where `email = input` OR `phoneNumber = input`. This means a single request can match two completely separate clusters at once - which is exactly how we detect the merge case.
@@ -39,22 +39,22 @@ The key insight is the **OR query**. When we search the database, we look for co
 
 ## How I Built It
 
-### Step 1 — Project Setup
+### Step 1 → Project Setup
 
-Started with a clean Node.js + TypeScript project. TypeScript was chosen because it catches bugs before runtime — if you try to access a field that doesn't exist, it tells you immediately while writing code, not when a user hits your endpoint.
+Started with a clean Node.js + TypeScript project. TypeScript was chosen because it catches bugs before runtime - if you try to access a field that doesn't exist, it tells you immediately while writing code, not when a user hits your endpoint.
 
-### Step 2 — Database Layer (`src/db.ts`)
+### Step 2 → Database Layer (`src/db.ts`)
 
 Used SQLite via `better-sqlite3`. SQLite is a file-based database - no server to set up, no credentials, just a single `.sqlite` file. Perfect for this use case.
 
 The Contact table schema:
 - `id` — unique identifier, auto assigned
-- `email` and `phoneNumber` — both optional, either can be null
-- `linkedId` — points to the primary contact's id (null if this contact is primary)
-- `linkPrecedence` — either `"primary"` or `"secondary"`
-- `createdAt`, `updatedAt`, `deletedAt` — timestamps stored as ISO strings
+- `email` and `phoneNumber` - both optional, either can be null
+- `linkedId` - points to the primary contact's id (null if this contact is primary)
+- `linkPrecedence` - either `"primary"` or `"secondary"`
+- `createdAt`, `updatedAt`, `deletedAt` - timestamps stored as ISO strings
 
-### Step 3 — Identity Reconciliation Logic (`src/identify.ts`)
+### Step 3 → Identity Reconciliation Logic (`src/identify.ts`)
 
 This is the brain of the service. The logic flows like this:
 
@@ -76,7 +76,7 @@ Check if the incoming email or phone is new to the cluster. If yes, insert a new
 **Build response:**
 Primary's email and phone go first in their respective arrays. Then secondaries follow. Deduplicate everything.
 
-### Step 4 — Express Server (`src/index.ts`)
+### Step 4 → Express Server (`src/index.ts`)
 
 A minimal Express server with a single POST `/identify` endpoint. Reads email and phoneNumber from the request body, calls the reconciliation logic, returns the consolidated contact.
 
@@ -145,9 +145,9 @@ Send an email from one cluster and a phone from another → the older primary ab
 
 ## What I Learned
 
-- How HTTP web services work — requests, responses, routing
+- How HTTP web services work - requests, responses, routing
 - How to design a relational database schema for a real problem
-- Raw SQL queries — SELECT, INSERT, UPDATE with dynamic placeholders
+- Raw SQL queries - SELECT, INSERT, UPDATE with dynamic placeholders
 - How to think about identity reconciliation as a graph/cluster problem
 - TypeScript interfaces and type guards for safe data handling
 - Deploying a Node.js service to production
